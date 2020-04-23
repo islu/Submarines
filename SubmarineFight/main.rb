@@ -10,10 +10,12 @@ class Main < Gosu::Window
 		super(1000, 500)
 		self.caption = "Submarine💣Fight"
 		@ui = UI.new
+		@ui.play_bgm
 		@score=0
 		@lose=false
 		#explosion animation
 		@animation=Gosu::Image.load_tiles("image/explosion.bmp", 62, 62) # => Image[]
+		@sound_effext = Gosu::Song.new("audio/explosion.wav")
 		@exp_x=-100
 		@exp_y=-100
 		@show_time=0
@@ -32,7 +34,7 @@ class Main < Gosu::Window
 			button_down?(Gosu::KB_LEFT) and @player.left
 			button_down?(Gosu::KB_C) and @player.drop?(@bombs, Gosu.milliseconds) and @bombs<<Bomb.new(@player.x+@player.w/2, @player.y)
 			#create enemy
-			if @enemys_cd<Gosu.milliseconds 
+			if @enemys_cd<Gosu.milliseconds
 				rand()<0.02 and @enemys<<FromLeftSubmarine.new
 				rand()<0.02 and @enemys<<FromRightSubmarine.new
 				@enemys_cd=Gosu.milliseconds+@enemys_cold
@@ -52,7 +54,7 @@ class Main < Gosu::Window
 					@exp_y=torpedo.y-torpedo.h-20
 					@show_time=Gosu.milliseconds+1500
 					@lose=true
-				end	
+				end
 			end
 			#update bomb state
 			@bombs.each(&:move)
@@ -62,7 +64,7 @@ class Main < Gosu::Window
 			@enemys.reject!(&:update)
 			@torpedos.each(&:move)
 			@torpedos.reject!(&:update)
-=begin	
+=begin
 			The same as people.collect { |p| p.name }
 				people.collect(&:name)
 			The same as people.select { |p| p.manager? }.collect { |p| p.salary }
@@ -70,8 +72,9 @@ class Main < Gosu::Window
 =end
 		end
 		button_down?(Gosu::KB_ESCAPE) and exit
-		button_down?(Gosu::KB_R) and self.init
-	end 
+		button_down?(Gosu::KB_R) and self.restart
+		@ui.stop_bgm if @lose
+	end
 	def collision(bombs, ships)
 		bombs.each do |bomb|
 			ships.each do |ship|
@@ -80,6 +83,7 @@ class Main < Gosu::Window
 					ship.dead=(true)
 					@exp_x=bomb.x
 					@exp_y=bomb.y+10
+					@sound_effext.play
 					@show_time=Gosu.milliseconds+1500
 					case ship.id
 					when 1..4
@@ -89,31 +93,32 @@ class Main < Gosu::Window
 					when 7,8
 						@score+=500
 					end
-				end	
+				end
 			end
 		end
 	end
-	def init
+	def restart
 		@player=Player.new
 		@bombs=[]
 		@enemys=[]
 		@torpedos=[]
 		@score=0
 		@lose=false
+		@ui.play_bgm
 	end
 	def draw
 		#draw player, bomb, enemy
-		unless @lose 
+		unless @lose
 			@player.draw
 			@player.draw_remained_bombs(@bombs)
 		end
 		@bombs.each(&:draw)
 		@enemys.each(&:draw)
 		@torpedos.each(&:draw)
-		if @show_time>Gosu.milliseconds then @animation[(Gosu.milliseconds/100)% @animation.size].draw(@exp_x, @exp_y, 2) end		
+		if @show_time>Gosu.milliseconds then @animation[(Gosu.milliseconds/100)% @animation.size].draw(@exp_x, @exp_y, 2) end
 
 		@ui.draw_background
-		@ui.draw_text(@score)			
+		@ui.draw_text(@score)
 		@ui.draw_lose_menu if @lose
 
 	end
