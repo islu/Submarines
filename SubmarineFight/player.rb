@@ -9,6 +9,10 @@ class Player
 		@max_bomb_carry=5
 		@cd=0
 		@cold=200
+		
+		@b_img = Gosu::Image.new("image/bomb.bmp")
+		#@b_w, @b_h = @b_img.width, @b_img.height
+
 	end
 	def right
 		@x+=@speed if @x<@screen_w-@w
@@ -26,5 +30,14 @@ class Player
 	end
 	def draw
 		@img.draw(@x, @y-@h, 1)
+	end
+	def draw_remained_bombs(bombs)
+		remained = @max_bomb_carry-bombs.length
+		x = @screen_w/2-50
+		offset = 20
+		(remained).times do |b|
+			@b_img.draw(x, 0, 1)
+			x += offset
+		end
 	end
 end

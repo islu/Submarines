@@ -1,27 +1,17 @@
-
 #coding: utf-8
 require 'gosu'
+require_relative 'ui'
 require_relative 'player'
 require_relative 'submarine'
 require_relative 'bomb'
-=begin
-ZOrder: sky, sea => 0
-		player, bomb, enemy => 1
-		font, animation => 2
-=end
-class GameWindow < Gosu::Window
+
+class Main < Gosu::Window
 	def initialize
 		super(1000, 500)
-		self.caption = "<SubmarineFight>"
-		#background
-		@sky=Gosu::Color.argb(0xff_808080)
-		@sea=Gosu::Color.argb(0xff_0000ff)
-		#UI
+		self.caption = "Submarine💣Fight"
+		@ui = UI.new
 		@score=0
-		@font=Gosu::Font.new(20)
 		@lose=false
-		@hint1=Gosu::Font.new(25)
-		@hint2=Gosu::Font.new(25)
 		#explosion animation
 		@animation=Gosu::Image.load_tiles("image/explosion.bmp", 62, 62) # => Image[]
 		@exp_x=-100
@@ -112,22 +102,21 @@ class GameWindow < Gosu::Window
 		@lose=false
 	end
 	def draw
-		#draw background
-		draw_quad(0, 0, @sky, 1000, 0, @sky, 1000, 200, @sky, 0, 200, @sky, 0)
-		draw_quad(0, 200, @sea, 1000, 200, @sea, 1000, 500, @sea, 0, 500, @sea, 0)
 		#draw player, bomb, enemy
-		!@lose and @player.draw
+		unless @lose 
+			@player.draw
+			@player.draw_remained_bombs(@bombs)
+		end
 		@bombs.each(&:draw)
 		@enemys.each(&:draw)
 		@torpedos.each(&:draw)
-		#draw UI
-		@font.draw("score: #{@score}", 10, 10, 2, 1.0, 1.0, Gosu::Color::YELLOW)
-		if @show_time>Gosu.milliseconds then @animation[(Gosu.milliseconds/100)% @animation.size].draw(@exp_x, @exp_y, 2) end
-		if @lose
-			@hint1.draw("presse [Esc] to exit game", 300, 180, 2, 1.0, 1.0, Gosu::Color::WHITE)	
-			@hint2.draw("presse [R] to restart game", 300, 220, 2, 1.0, 1.0, Gosu::Color::WHITE)	
-		end
+		if @show_time>Gosu.milliseconds then @animation[(Gosu.milliseconds/100)% @animation.size].draw(@exp_x, @exp_y, 2) end		
+
+		@ui.draw_background
+		@ui.draw_text(@score)			
+		@ui.draw_lose_menu if @lose
+
 	end
 end
 
-GameWindow.new.show
+Main.new.show
