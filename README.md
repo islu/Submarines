@@ -1,12 +1,15 @@
 ## Introduction
 ![screenshot](/screenshot.PNG)
-**How to play**
-* Right Arraw: move ship go right
-* Left Arraw: move ship go left
-* [C]: drop the bomb
-* [R]: restart the game
-* [Esc]: colse the wiodow
-## Run code
-need install `Ruby`
-* install Gosu `~$ gem install gosu`
-* execute script `~$ ruby main.rb`
+**How To Play**
+* `[->]`: Move ship go right
+* `[<-]`: Move ship go left
+* `[C]`: Drop the bomb
+* `[R]`: Restart the game
+* `[Esc]`: Exit the game
+## Start!
+* `Ruby2.6+`
+* `gem install gosu`
+* `ruby main.rb`
+## Resources
+* [audio/The looming!.wav](https://opengameart.org/content/the-looming) author: Snabisch
+* [audio/explosion.wav](https://opengameart.org/content/explosion-0)
