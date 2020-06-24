@@ -1,20 +1,23 @@
 #coding: utf-8
 require 'gosu'
 require_relative 'ui'
+require_relative 'animation'
 require_relative 'player'
 require_relative 'submarine'
 require_relative 'bomb'
 
 class Main < Gosu::Window
 	def initialize
-		super(1000, 500)
-		self.caption = "Submarine💣Fight"
+		super 1000,500
+		self.caption = "Submarine Fight"
 		@ui = UI.new
 		@ui.play_bgm
 		@score=0
+		
 		@lose=false
 		#explosion animation
-		@animation=Gosu::Image.load_tiles("image/explosion.bmp", 62, 62) # => Image[]
+		@animations = []
+		
 		@sound_effext = Gosu::Song.new("audio/explosion.wav")
 		@exp_x=-100
 		@exp_y=-100
@@ -32,11 +35,15 @@ class Main < Gosu::Window
 			#update player state
 			button_down?(Gosu::KB_RIGHT) and @player.right
 			button_down?(Gosu::KB_LEFT) and @player.left
-			button_down?(Gosu::KB_C) and @player.drop?(@bombs, Gosu.milliseconds) and @bombs<<Bomb.new(@player.x+@player.w/2, @player.y)
+			if @player.drop?(@bombs, Gosu.milliseconds)
+				button_down?(Gosu::KB_Z) and @bombs << Bomb.new(@player.x, @player.y)
+				button_down?(Gosu::KB_X) and @bombs << Bomb.new(@player.x+@player.w/2, @player.y)
+				button_down?(Gosu::KB_C) and @bombs << Bomb.new(@player.x+@player.w, @player.y)
+			end
 			#create enemy
 			if @enemys_cd<Gosu.milliseconds
-				rand()<0.02 and @enemys<<FromLeftSubmarine.new
-				rand()<0.02 and @enemys<<FromRightSubmarine.new
+				rand()<0.05 and @enemys<<FromLeftSubmarine.new
+				rand()<0.05 and @enemys<<FromRightSubmarine.new
 				@enemys_cd=Gosu.milliseconds+@enemys_cold
 			end
 			#enemy drop the torpedo
@@ -50,9 +57,7 @@ class Main < Gosu::Window
 			@torpedos.each do |torpedo|
 				if torpedo.x+torpedo.w/2>@player.x && torpedo.x+torpedo.w/2<@player.x+@player.w && torpedo.y<200+torpedo.h/2
 					torpedo.dead=(true)
-					@exp_x=torpedo.x
-					@exp_y=torpedo.y-torpedo.h-20
-					@show_time=Gosu.milliseconds+1500
+					@animations << Explosion.new(@player.x+@player.w/2, @player.y-@player.h/2, Gosu.milliseconds)
 					@lose=true
 				end
 			end
@@ -73,25 +78,30 @@ class Main < Gosu::Window
 		end
 		button_down?(Gosu::KB_ESCAPE) and exit
 		button_down?(Gosu::KB_R) and self.restart
+		
+		@animations.delete_if(&:die?)		
 		@ui.stop_bgm if @lose
 	end
 	def collision(bombs, ships)
 		bombs.each do |bomb|
 			ships.each do |ship|
 				if Gosu.distance(bomb.x+bomb.w, bomb.y+bomb.h ,ship.x+ship.w, ship.y+ship.h) < 20
-					bomb.dead=(true)
-					ship.dead=(true)
-					@exp_x=bomb.x
-					@exp_y=bomb.y+10
+					bomb.dead = (true)
+					ship.dead = (true)
+					@animations << Explosion.new(bomb.x, bomb.y+bomb.h, Gosu.milliseconds)
 					@sound_effext.play
-					@show_time=Gosu.milliseconds+1500
+					
+					chain = @animations.length
 					case ship.id
 					when 1..4
-						@score+=100
+						@animations[-1].set_text(20,chain)
+						@score += 20*chain
 					when 5,6
-						@score+=200
+						@animations[-1].set_text(30,chain)
+						@score += 30*chain
 					when 7,8
-						@score+=500
+						@animations[-1].set_text(40,chain)
+						@score += 40*chain
 					end
 				end
 			end
@@ -104,7 +114,7 @@ class Main < Gosu::Window
 		@torpedos=[]
 		@score=0
 		@lose=false
-		@ui.play_bgm
+		#@ui.play_bgm
 	end
 	def draw
 		#draw player, bomb, enemy
@@ -115,11 +125,13 @@ class Main < Gosu::Window
 		@bombs.each(&:draw)
 		@enemys.each(&:draw)
 		@torpedos.each(&:draw)
-		if @show_time>Gosu.milliseconds then @animation[(Gosu.milliseconds/100)% @animation.size].draw(@exp_x, @exp_y, 2) end
-
+	
 		@ui.draw_background
-		@ui.draw_text(@score)
+		@ui.draw_score(@score)
 		@ui.draw_lose_menu if @lose
+		
+		@animations.each(&:draw)
+		@animations.each(&:draw_text)
 
 	end
 end

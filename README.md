@@ -1,11 +1,13 @@
 ## Introduction
-![screenshot](/screenshot.PNG)
+![demo](/demo.PNG)
 **How To Play**
-* `[->]`: Move ship go right
-* `[<-]`: Move ship go left
-* `[C]`: Drop the bomb
+* `[->]`: Move the ship to the right
+* `[<-]`: Move the ship to the left
+* `[Z]`: Drop a bomb on the left side of the ship
+* `[X]`: Drop a bomb in the middle of the ship
+* `[C]`: Drop a bomb on the right side of the ship
 * `[R]`: Restart the game
-* `[Esc]`: Exit the game
+* `[Esc]`: Exit the game (close window)
 ## Start!
 * `Ruby2.6+`
 * `gem install gosu`
