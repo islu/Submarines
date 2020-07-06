@@ -85,7 +85,8 @@ class Main < Gosu::Window
 	def collision(bombs, ships)
 		bombs.each do |bomb|
 			ships.each do |ship|
-				if Gosu.distance(bomb.x+bomb.w, bomb.y+bomb.h ,ship.x+ship.w, ship.y+ship.h) < 20
+				#if Gosu.distance(bomb.x+bomb.w, bomb.y+bomb.h ,ship.x+ship.w, ship.y+ship.h) < 20
+				if overleap(bomb, ship)	
 					bomb.dead = (true)
 					ship.dead = (true)
 					@animations << Explosion.new(bomb.x, bomb.y+bomb.h, Gosu.milliseconds)
@@ -107,6 +108,11 @@ class Main < Gosu::Window
 			end
 		end
 	end
+	
+	def overleap(obj1, obj2)
+		return !(obj1.x+obj1.w < obj2.x || obj1.x > obj2.x+obj2.w || obj1.y+obj2.h < obj2.y || obj1.y > obj2.y+obj2.h)
+	end
+	
 	def restart
 		@player=Player.new
 		@bombs=[]
