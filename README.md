@@ -4,7 +4,7 @@
 
 **Submarines** is an exciting game where you control a ship and drop bombs to hit submarines. Use the controls to navigate and drop bombs in the right position to succeed!
 
-![demo](/demo.png)
+![demo](/screenshot.png)
 
 ### How To Play
 - [▶]: Move the ship to the right
